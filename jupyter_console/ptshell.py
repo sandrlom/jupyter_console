@@ -316,7 +316,7 @@ class ZMQTerminalInteractiveShell(SingletonConfigurable):
         ),
         default_value="multicolumn",
     ).tag(config=True)
-    
+
     prompt_includes_vi_mode = Bool(True,
         help="Display the current vi mode (when using vi editing mode)."
     ).tag(config=True)
@@ -337,6 +337,10 @@ class ZMQTerminalInteractiveShell(SingletonConfigurable):
 
     simple_prompt = Bool(False,
          help="""Use simple fallback prompt. Features may be limited."""
+    ).tag(config=True)
+
+    autoindent = Bool(True,
+         help="""Autoindent IPython code entered."""
     ).tag(config=True)
 
     def __init__(self, **kwargs):
@@ -374,7 +378,7 @@ class ZMQTerminalInteractiveShell(SingletonConfigurable):
                 and self.prompt_includes_vi_mode):
             return '['+str(self.pt_cli.app.vi_state.input_mode)[3:6]+'] '
         return ''
-    
+
     def get_prompt_tokens(self, ec=None):
         if ec is None:
             ec = self.execution_count
@@ -481,7 +485,7 @@ class ZMQTerminalInteractiveShell(SingletonConfigurable):
             if (not more) and b.accept_handler:
                 b.validate_and_handle()
             else:
-                b.insert_text('\n' + indent)
+                b.insert_text(('\n' + indent) if self.autoindent else '\n')
 
         @kb.add("c-c", filter=has_focus(DEFAULT_BUFFER))
         def _(event):
